@@ -18,7 +18,7 @@ import com.google.android.material.tabs.TabLayout.ViewPagerOnTabSelectedListener
 
 class FeedsFragment:BaseFragment1WithViewBinding<FragmentFeedsBinding>(
     inflateViewBinding = FragmentFeedsBinding::inflate,
-) {
+){
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.searchButton.setOnClickListener {
@@ -31,39 +31,35 @@ class FeedsFragment:BaseFragment1WithViewBinding<FragmentFeedsBinding>(
                 )
             }
         }
-        setupViewpager()
-
+        setupViewPager()
     }
 
-    private fun setupViewpager() {
+    private fun setupViewPager() {
         binding.viewPager.run {
             adapter = viewpagerAdapter(this@FeedsFragment)
+
             TabLayoutMediator(
                 binding.tabsLayout,
                 this
-            ){tab,position ->
-                 tab.text =  when(position)  {
-                0 -> "Collections"
-                1 -> "Photos"
-                else -> error("error :$position")
-            }
-
+            ){tab, position ->
+                tab.text = when(position){
+                    0 -> "Collections"
+                    1 -> "Photos"
+                    else -> error("error $position")
+                }
             }.attach()
         }
-
     }
-
-
 }
 
-class viewpagerAdapter(fragment: Fragment):FragmentStateAdapter(fragment){
+class viewpagerAdapter(fragment: Fragment) : FragmentStateAdapter(fragment){
     override fun getItemCount(): Int = 2
 
     override fun createFragment(position: Int): Fragment {
         return when(position){
             0 -> FeedCollectionFragment.newInstance()
             1 -> FeedPhotoFragment.newInstance()
-            else -> error("error :$position")
+            else -> error("error $position")
         }
     }
 

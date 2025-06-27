@@ -4,24 +4,29 @@ import com.example.myapplication.upsplash.data.response.CollectionItemResponce
 
 import com.example.myapplication.upsplash.data.response.CollectionItemResponse
 import com.example.myapplication.upsplash.data.response.CollectionsItemRp
-import com.example.myapplication.upsplash.presitation.feed.collection.MemeResponseWrapper
+import com.example.myapplication.upsplash.data.response.SearchRp
 import retrofit2.Retrofit
 import retrofit2.create
 import retrofit2.http.GET
 import retrofit2.http.Query
 
 interface UnsplashApiService {
+    @GET("search/photos")
+    suspend fun getSearch(
+        @Query("query") query: String,
+        @Query("page")  page: Int,
+        @Query("per_page") perPage: Int
+    ): SearchRp
 
-    @GET("collections")
-     suspend fun getCollections(
-         @Query("page")  page:Int,
-         @Query("per_page")  perPage :Int,
-     )  : List<CollectionsItemRp>
+   @GET("collections")
+   suspend fun getCollections(
+       @Query("page") page: Int,
+       @Query("per_page") perPage: Int
+   ): List<CollectionsItemRp>
 
-    companion object {
-        operator fun invoke(retrofit: Retrofit): UnsplashApiService =
-            retrofit.create(UnsplashApiService::class.java)
-    }
+   companion object{
+       operator fun invoke(retrofit: Retrofit) : UnsplashApiService = retrofit.create()
+   }
 }
 
 

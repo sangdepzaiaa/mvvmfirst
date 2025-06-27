@@ -2,11 +2,12 @@ package com.example.myapplication.upsplash
 
 import android.app.Application
 
-class UnsplashApplication :Application(){
+class UnsplashApplication : Application(){
     override fun onCreate() {
         super.onCreate()
         UnsplashServiceLocator.initwith(this)
     }
+
 }
 //3️⃣ Tại sao lại cần hàm initWith()?
 //Để gom toàn bộ phần khởi tạo lại một chỗ.

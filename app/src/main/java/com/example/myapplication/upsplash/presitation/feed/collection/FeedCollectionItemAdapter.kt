@@ -13,7 +13,7 @@ import com.example.myapplication.databinding.ItemCollectionLayoutBinding
 import kotlinx.coroutines.flow.combine
 
 
-
+//DiffUtil.ItemCallback(vẽ lại item cần thay đổi) thay cho datasetchange( vẽ lại toàn bộ rcv)
 object CollectionItemDiffUtilItemCallback: DiffUtil.ItemCallback<FeedCollectionUiState.CollectionsItem>() {
     override fun areItemsTheSame(oldItem: FeedCollectionUiState.CollectionsItem, newItem: FeedCollectionUiState.CollectionsItem) =
         oldItem.id == newItem.id
@@ -22,14 +22,13 @@ object CollectionItemDiffUtilItemCallback: DiffUtil.ItemCallback<FeedCollectionU
        oldItem == newItem
 }
 
+// ListAdapter thay cho Recycleview.Adapter vì ListAdapter hỗ trợ DiffUtil.ItemCallback
 class FeedCollectionItemAdapter(
     private val onItemClick: (item : FeedCollectionUiState.CollectionsItem) -> Unit,
-    private val requestManager: RequestManager)
+    private val requestManager:  RequestManager)
     : ListAdapter<FeedCollectionUiState.CollectionsItem, FeedCollectionItemAdapter.VH>(
     CollectionItemDiffUtilItemCallback
 ) {
-
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = VH(
         ItemCollectionLayoutBinding.inflate(
             LayoutInflater.from(parent.context),
@@ -38,10 +37,10 @@ class FeedCollectionItemAdapter(
         )
     )
 
-
+//getItem : Hàm có sẵn của ListAdapter.
     override fun onBindViewHolder(holder: VH, position: Int): Unit = holder.bind(getItem(position))
 
-   inner class VH(val binding: ItemCollectionLayoutBinding): RecyclerView.ViewHolder(binding.root){
+   inner class VH(val binding: ItemCollectionLayoutBinding): ViewHolder(binding.root){
        init {
            itemView.setOnClickListener {
                adapterPosition.let { pos ->
@@ -57,7 +56,7 @@ class FeedCollectionItemAdapter(
                 textTitle.text = item.title
                 textDescription.text = item.description
 
-                requestManager.load(item.coverPhotoUrl)
+                requestManager.load(item.photocover)
                     .fitCenter()
                     .centerCrop()
                     .transition(DrawableTransitionOptions.withCrossFade())

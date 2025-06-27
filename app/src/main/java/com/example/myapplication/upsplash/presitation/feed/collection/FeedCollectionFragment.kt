@@ -36,7 +36,7 @@ class FeedCollectionFragment : BaseFragment1WithViewBinding<FragmentFeedCollecti
    }
 
     private fun onItemClick(collectionItem: FeedCollectionUiState.CollectionsItem) {
-
+        Toast.makeText(context, "Bạn chọn item thứ ${collectionItem.title}", Toast.LENGTH_SHORT).show()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -54,6 +54,7 @@ class FeedCollectionFragment : BaseFragment1WithViewBinding<FragmentFeedCollecti
     fun setupView(){
         binding.recyclerView.run {
             setHasFixedSize(true)
+            setItemViewCacheSize(50)
             layoutManager = LinearLayoutManager(context)
             adapter = feedCollectionItemAdapter
         }
