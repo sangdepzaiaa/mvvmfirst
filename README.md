@@ -6,8 +6,8 @@
 
 ## Screenshots
 
-- ![Feeds](img_search.png)
-- ![Search](img_feed.png)
+- ![Feeds](https://github.com/sangdepzaiaa/mvvmfirst/blob/master/app/src/main/assets/Screenshot_2025-06-27-15-27-46-963_com.example.myapplication.jpg)
+- ![Search](https://github.com/sangdepzaiaa/mvvmfirst/blob/master/app/src/main/assets/Screenshot_2025-06-27-15-27-59-902_com.example.myapplication.jpg)
 
 ## TODO
 
