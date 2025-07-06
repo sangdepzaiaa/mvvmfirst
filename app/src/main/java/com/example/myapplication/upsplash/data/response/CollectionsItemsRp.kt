@@ -4,7 +4,7 @@ package com.example.myapplication.upsplash.data.response
 import com.squareup.moshi.Json
 
 
-  data class CollectionsItemRp(
+  data class CollectionsItemsRp(
     @Json(name = "id") val id: String,
     @Json(name = "title") val title: String,
     @Json(name = "description") val description: String?,
@@ -20,9 +20,7 @@ import com.squareup.moshi.Json
     @Json(name = "cover_photo") val coverPhoto: CoverPhoto,
     @Json(name = "preview_photos") val previewPhotos: List<PreviewPhoto>
   ) {
-
-
-      data class Links(
+    data class Links(
       @Json(name = "self") val self: String,
       @Json(name = "html") val html: String,
       @Json(name = "photos") val photos: String,
@@ -87,7 +85,7 @@ import com.squareup.moshi.Json
       @Json(name = "width") val width: Int,
       @Json(name = "height") val height: Int,
       @Json(name = "color") val color: String,
-      @Json(name = "blur_hash") val blurHash: String,
+      @Json(name = "blur_hash") val blurHash: String?,
       @Json(name = "description") val description: String?,
       @Json(name = "alt_description") val altDescription: String,
       @Json(name = "breadcrumbs") val breadcrumbs: List<Breadcrumb>,
@@ -133,16 +131,68 @@ import com.squareup.moshi.Json
       )
   
       data class TopicSubmissions(
+        @Json(name = "wallpapers") val wallpapers: Wallpapers?,
+        @Json(name = "textures-patterns") val texturesPatterns: TexturesPatterns?,
+        @Json(name = "spirituality") val spirituality: Spirituality?,
+        @Json(name = "health") val health: Health?,
+        @Json(name = "travel") val travel: Travel?,
+        @Json(name = "spring") val spring: Spring?,
         @Json(name = "nature") val nature: Nature?,
-        @Json(name = "experimental") val experimental: Experimental?
+        @Json(name = "experimental") val experimental: Experimental?,
+        @Json(name = "film") val film: Film?,
+        @Json(name = "3d-renders") val dRenders: DRenders?,
+        @Json(name = "sports") val sports: Sports?
       ) {
-        data class Nature(
+        data class Wallpapers(
+          @Json(name = "status") val status: String,
+          @Json(name = "approved_on") val approvedOn: String?
+        )
+  
+        data class TexturesPatterns(
+          @Json(name = "status") val status: String,
+          @Json(name = "approved_on") val approvedOn: String?
+        )
+  
+        data class Spirituality(
+          @Json(name = "status") val status: String,
+          @Json(name = "approved_on") val approvedOn: String?
+        )
+  
+        data class Health(
           @Json(name = "status") val status: String
+        )
+  
+        data class Travel(
+          @Json(name = "status") val status: String
+        )
+  
+        data class Spring(
+          @Json(name = "status") val status: String,
+          @Json(name = "approved_on") val approvedOn: String?
+        )
+  
+        data class Nature(
+          @Json(name = "status") val status: String,
+          @Json(name = "approved_on") val approvedOn: String?
         )
   
         data class Experimental(
           @Json(name = "status") val status: String,
-          @Json(name = "approved_on") val approvedOn: String
+          @Json(name = "approved_on") val approvedOn: String?
+        )
+  
+        data class Film(
+          @Json(name = "status") val status: String
+        )
+  
+        data class DRenders(
+          @Json(name = "status") val status: String,
+          @Json(name = "approved_on") val approvedOn: String?
+        )
+  
+        data class Sports(
+          @Json(name = "status") val status: String,
+          @Json(name = "approved_on") val approvedOn: String?
         )
       }
   
@@ -200,7 +250,7 @@ import com.squareup.moshi.Json
       @Json(name = "slug") val slug: String,
       @Json(name = "created_at") val createdAt: String,
       @Json(name = "updated_at") val updatedAt: String,
-      @Json(name = "blur_hash") val blurHash: String,
+      @Json(name = "blur_hash") val blurHash: String?,
       @Json(name = "asset_type") val assetType: String,
       @Json(name = "urls") val urls: Urls
     ) {

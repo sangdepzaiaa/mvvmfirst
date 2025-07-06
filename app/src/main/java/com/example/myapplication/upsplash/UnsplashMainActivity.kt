@@ -10,7 +10,7 @@ import com.example.myapplication.upsplash.presitation.feed.FeedsFragment
 import com.example.myapplication.upsplash.presitation.feed.collection.FeedCollectionFragment
 
 class UnsplashMainActivity: AppCompatActivity(){
-    private val binding by lazy(LazyThreadSafetyMode.NONE) {
+    private val binding by lazy(LazyThreadSafetyMode.NONE){
         ActivityUnsplashMainBinding.inflate(layoutInflater)
     }
 
@@ -27,4 +27,5 @@ class UnsplashMainActivity: AppCompatActivity(){
             }
         }
     }
+
 }

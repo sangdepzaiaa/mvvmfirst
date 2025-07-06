@@ -4,34 +4,31 @@ import com.example.myapplication.upsplash.data.response.CollectionItemResponse
 import com.squareup.moshi.Json
 
 sealed interface FeedCollectionUiState{
-
-    data object FirstPageLoading: FeedCollectionUiState
-    data object FirstPageError: FeedCollectionUiState
+    data object FirstPageLoading : FeedCollectionUiState
+    data object FirstPageError : FeedCollectionUiState
 
     data class Content(
         val item: List<CollectionsItem>,
         val currentPage: Int,
-        val nextPageState : NextPageState
-    ): FeedCollectionUiState
+        val nextPageState: NextPageState,
+    ):FeedCollectionUiState
 
     data class CollectionsItem(
-        val id:String,
+        val id : String,
         val title:String,
-        val description: String,
-        val photocover: String
-    ): FeedCollectionUiState
+        val description:String,
+        val photocover:String,
+    ) : FeedCollectionUiState
+
+
 
     enum class NextPageState {
-       LOADING,
-        NO_MORE_ITEMS,
+     LOADING,
         IDLE,
+        NO_MORE_ITEMS,
         ERROR
     }
-
 }
-
-
-
 
 
 

@@ -16,8 +16,8 @@ import com.google.android.material.tabs.TabLayoutMediator
 import androidx.fragment.app.add
 import com.google.android.material.tabs.TabLayout.ViewPagerOnTabSelectedListener
 
-class FeedsFragment:BaseFragment1WithViewBinding<FragmentFeedsBinding>(
-    inflateViewBinding = FragmentFeedsBinding::inflate,
+class FeedsFragment: BaseFragment1WithViewBinding<FragmentFeedsBinding>(
+    inflateViewBinding = FragmentFeedsBinding::inflate
 ){
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -31,10 +31,10 @@ class FeedsFragment:BaseFragment1WithViewBinding<FragmentFeedsBinding>(
                 )
             }
         }
-        setupViewPager()
+        setupViewpager()
     }
 
-    private fun setupViewPager() {
+    private fun setupViewpager() {
         binding.viewPager.run {
             adapter = viewpagerAdapter(this@FeedsFragment)
 
@@ -47,12 +47,16 @@ class FeedsFragment:BaseFragment1WithViewBinding<FragmentFeedsBinding>(
                     1 -> "Photos"
                     else -> error("error $position")
                 }
+
+
             }.attach()
         }
     }
+
+
 }
 
-class viewpagerAdapter(fragment: Fragment) : FragmentStateAdapter(fragment){
+class viewpagerAdapter(fragment: Fragment): FragmentStateAdapter(fragment){
     override fun getItemCount(): Int = 2
 
     override fun createFragment(position: Int): Fragment {

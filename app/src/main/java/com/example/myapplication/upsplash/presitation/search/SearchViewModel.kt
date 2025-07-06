@@ -8,46 +8,55 @@ import androidx.lifecycle.liveData
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import com.example.myapplication.upsplash.data.UnsplashApiService
+import com.example.myapplication.upsplash.data.response.CollectionsItemsRp
 import com.example.myapplication.upsplash.presitation.debounce
 import com.example.myapplication.upsplash.presitation.feed.collection.FeedCollectionUiState
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.currentCoroutineContext
+import okhttp3.Dispatcher
+import retrofit2.http.Query
 
-class SearchViewModel(val unsplashApiService: UnsplashApiService): ViewModel() {
+class SearchViewModel (var unsplashApiService: UnsplashApiService):ViewModel(){
 
-    private val searchMutable = MutableLiveData<String>()
-    val searchLiveData : LiveData<String> get() = searchMutable
+    private val mutableLiveData = MutableLiveData<String>()
+    val searchLiveData: LiveData<String> get() = mutableLiveData
 
-//    init {
+    //    init {
 //        val data:LiveData<Int> = liveData{
 //            delay(3000)
 //            emit(3)
 //        }
 //    }
 
-    val searchResultLivedata:LiveData<List<FeedCollectionUiState.CollectionsItem>> = searchLiveData
+    val searchResultLivadata:LiveData<List<FeedCollectionUiState.CollectionsItem>> = searchLiveData
         .debounce(duration = 650L, coroutineScope = viewModelScope)
         .distinctUntilChanged()
         .switchMap { query:String ->
-            liveData(context = viewModelScope.coroutineContext + Dispatchers.IO) {
+            liveData(context = viewModelScope.coroutineContext + Dispatchers.IO ){
                 try {
                     val result:List<FeedCollectionUiState.CollectionsItem> =
                         unsplashApiService.getSearch(query,1,10)
-                        .results
-                        .map { coverPhoto ->
-                            FeedCollectionUiState.CollectionsItem(
-                                id = coverPhoto.id,
-                                title = coverPhoto.description.orEmpty(),
-                                description = coverPhoto.user.name,
-                                photocover = coverPhoto.urls.regular,
-                            )
-                        }
+                            .resultss
+                            .map { coverPhoto ->
+                                FeedCollectionUiState.CollectionsItem(
+                                    id = coverPhoto.id,
+                                    title = coverPhoto.description.orEmpty(),
+                                    description = coverPhoto.user.name,
+                                    photocover = coverPhoto.urls.regular
+                                )
+                            }
                     emit(result)
                 }catch (e: Exception){
-                        emit(emptyList())
+                    emit(emptyList())
                 }
             }
         }
-    fun setSearchQuery(query :String){
-        searchMutable.value = query
+    fun setQueryLivedata(query: String){
+        mutableLiveData.value = query
     }
 }
+
+
+
+
+

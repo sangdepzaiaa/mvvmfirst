@@ -16,7 +16,7 @@ import com.example.myapplication.upsplash.presitation.search.user.SearchUserFrag
 import com.google.android.material.tabs.TabLayoutMediator
 
 
-class SearchhFragment : BaseFragment1WithViewBinding<FragmentSearchhBinding>(
+class SearchhFragment:BaseFragment1WithViewBinding<FragmentSearchhBinding>(
     inflateViewBinding = FragmentSearchhBinding::inflate,
 ){
     private val vm by activityViewModels<SearchViewModel>(
@@ -30,60 +30,95 @@ class SearchhFragment : BaseFragment1WithViewBinding<FragmentSearchhBinding>(
     )
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setupView()
-        setupViewPager()
+        setupOnview()
+        setupViewpager()
     }
 
-    private fun setupViewPager() {
+    private fun setupViewpager() {
+        binding.run {
+            toolbar.setOnClickListener {
+                parentFragmentManager.popBackStack()
+            }
+
+            searchEditText.addTextChangedListener(object : TextWatcher{
+                override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+
+                }
+
+                override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                }
+
+                override fun afterTextChanged(p0: Editable?) {
+                    vm.setQueryLivedata(p0.toString())
+                }
+
+            })
+        }
+    }
+
+    private fun setupOnview() {
         binding.viewpager.run {
-            adapter = ViewpagerSearchAdapter(this@SearchhFragment)
+            adapter = viewpagerAdapter(this@SearchhFragment)
 
             TabLayoutMediator(
                 binding.tablayout,
                 this
             ){tab, position ->
                 tab.text = when(position){
-                    0 -> "Photos"
-                    1 -> "Users"
-                    else -> error("error $position")
+                    0 -> "photo"
+                    1 -> "user"
+                    else -> error("error $position" )
                 }
             }.attach()
         }
     }
-
-    fun setupView(){
-        binding.toolbar.setNavigationOnClickListener{
-            parentFragmentManager.popBackStack()
-        }
-
-        binding.searchEditText.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-
-            }
-
-            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-
-            }
-
-            override fun afterTextChanged(p0: Editable?) {
-                vm.setSearchQuery(p0.toString())
-            }
-
-        })
-    }
-
-
 }
 
-class ViewpagerSearchAdapter(fragment: Fragment):FragmentStateAdapter(fragment){
-    override fun getItemCount(): Int =2
-
+class viewpagerAdapter(fragment: Fragment): FragmentStateAdapter(fragment) {
+    override fun getItemCount() = 2
     override fun createFragment(position: Int): Fragment {
-       return when(position){
-           0 -> SearchPhotoFragment.inStance()
-           1 -> SearchUserFragment.instance()
-           else -> error("error :$position")
-       }
+        return  when(position){
+            0 -> SearchPhotoFragment.newInstance()
+            1 -> SearchUserFragment.instance()
+            else -> error("error $position")
+        }
     }
-
 }
+
+//activityViewModels :Nó giúp bạn dùng chung ViewModel giữa nhiều Fragment trong cùng 1 Activity.
+//ViewModel lúc này không thuộc Fragment, mà thuộc Activity → mọi Fragment trong Activity đó dùng
+//chung cùng một thể hiện (instance).
+//
+//So sánh viewModels vs activityViewModels
+//viewModels()	                           activityViewModels()
+//ViewModel chỉ sống trong Fragment	        ViewModel thuộc Activity
+//Chỉ dùng được trong chính Fragment đó	   Các Fragment trong cùng Activity đều dùng được
+//Mỗi Fragment có instance riêng	           Dùng chung ViewModel giữa các Fragment
+//
+//Tình huống thực tế: Vì sao SearchFragment dùng activityViewModels
+//🔸 Mục đích: chia sẻ dữ liệu tìm kiếm (query, kết quả) giữa nhiều Fragment.
+//🔸 Ví dụ UI:
+//MainActivity
+//└── FeedFragment     ← chỉ hiển thị ảnh bình thường
+//└── SearchFragment   ← nhập query tìm kiếm
+//└── ResultFragment   ← hiển thị kết quả từ SearchViewModel
+//
+//Khi SearchFragment cập nhật query (searchLiveData.value = "cat"), thì ResultFragment tự động
+//nhận được kết quả từ SearchViewModel, vì cả 2 Fragment đang dùng chung ViewModel đó từ activityViewModels.
+//
+//Vì sao FeedFragment không cần activityViewModels
+//Vì FeedFragment không cần chia sẻ dữ liệu với Fragment nào khác → nó tự khai báo ViewModel của riêng nó
+//(viewModels() hoặc không dùng gì nếu không cần).
+//
+//Khi nào dùng activityViewModels()?
+//Tình huống	                                                             Có dùng activityViewModels?
+//Chia sẻ kết quả tìm kiếm giữa nhiều Fragment	                               ✅
+//Fragment cần cập nhật UI dựa trên dữ liệu chung (giỏ hàng, người dùng…)  	✅
+//Fragment độc lập, dữ liệu riêng	                                            ❌ dùng viewModels() là đủ
+//
+//Kết luận
+//activityViewModels dùng khi bạn muốn chia sẻ ViewModel giữa các Fragment trong cùng Activity.
+//
+//viewModels dùng khi mỗi Fragment tự quản lý ViewModel riêng của nó.
+//
+//Trong app thực tế, tìm kiếm, giỏ hàng, trạng thái người dùng đăng nhập thường dùng activityViewModels.

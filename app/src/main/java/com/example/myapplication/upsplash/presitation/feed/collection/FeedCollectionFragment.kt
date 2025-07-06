@@ -1,5 +1,6 @@
 package com.example.myapplication.upsplash.presitation.feed.collection
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -11,32 +12,32 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.myapplication.Fragments.BaseFragment1WithViewBinding
+import com.example.myapplication.Fragments.DemoFragment
 import com.example.myapplication.databinding.FragmentFeedCollectionBinding
 import com.example.myapplication.upsplash.UnsplashServiceLocator
 import com.example.myapplication.upsplash.domain.model.CollectionItem
 
-
-class FeedCollectionFragment : BaseFragment1WithViewBinding<FragmentFeedCollectionBinding>(
-    inflateViewBinding = FragmentFeedCollectionBinding::inflate
-) {
+class FeedCollectionFragment: BaseFragment1WithViewBinding<FragmentFeedCollectionBinding>(
+    inflateViewBinding = FragmentFeedCollectionBinding::inflate,
+){
     private val vm by viewModels<feedcollectionViewModel>(
-          factoryProducer = {
-              viewModelFactory {
-                  addInitializer(feedcollectionViewModel::class){
-                      feedcollectionViewModel(apiService = UnsplashServiceLocator.unsplashApiService)
-                  }
-              }
-          }
+        factoryProducer = {
+            viewModelFactory {
+                addInitializer(feedcollectionViewModel::class){
+                    feedcollectionViewModel(apiService = UnsplashServiceLocator.unsplashApiService)
+                }
+            }
+        }
     )
-   private val feedCollectionItemAdapter by lazy(LazyThreadSafetyMode.NONE) {
-       FeedCollectionItemAdapter(
-           onItemClick = ::onItemClick,
-           requestManager = Glide.with(this@FeedCollectionFragment)
-       )
-   }
 
-    private fun onItemClick(collectionItem: FeedCollectionUiState.CollectionsItem) {
-        Toast.makeText(context, "Bạn chọn item thứ ${collectionItem.title}", Toast.LENGTH_SHORT).show()
+    private val feedCollectionItemAdapter by lazy(LazyThreadSafetyMode.NONE)
+    { FeedCollectionItemAdapter(
+        onClick = ::onClick,
+        requestManager = Glide.with(requireContext())
+    ) }
+
+    private fun onClick(collectionsItem: FeedCollectionUiState.CollectionsItem) {
+       Toast.makeText(context,"${collectionsItem.title}" ,Toast.LENGTH_SHORT).show()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -45,74 +46,69 @@ class FeedCollectionFragment : BaseFragment1WithViewBinding<FragmentFeedCollecti
         bindViewModel()
     }
 
-    override fun onDestroy() {
-        binding.recyclerView.adapter = null
-        super.onDestroy()
 
-    }
 
-    fun setupView(){
+    private fun setupView() {
         binding.recyclerView.run {
             setHasFixedSize(true)
-            setItemViewCacheSize(50)
-            layoutManager = LinearLayoutManager(context)
             adapter = feedCollectionItemAdapter
+            layoutManager = LinearLayoutManager(requireContext())
+
         }
     }
 
-    fun bindViewModel(){
+    private fun bindViewModel() {
         vm.liveData.observe(viewLifecycleOwner,::render)
 
         val linearLayoutManager = binding.recyclerView.layoutManager as LinearLayoutManager
-        binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener(){
+
+        binding.recyclerView.addOnScrollListener(object: RecyclerView.OnScrollListener(){
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-                println("onScrolled $dy")
-                if(dy > 0){
-                    if (linearLayoutManager.findLastVisibleItemPosition() + VISIBLE >= linearLayoutManager.itemCount ){
-                        println("onScrolled *")
-                        vm.loadnextpage()
-                    }
+                println(">>> onScrolled: $dy")
+                if ( dy > 0 &&linearLayoutManager.findLastVisibleItemPosition() + VISIBLE_THRESHOLD
+                     >= linearLayoutManager.itemCount)
+                 {
+                    println(">>> onScrolled[*]")
+                     vm.loadnextpage()
                 }
             }
         })
-
     }
-    private fun render(uiState: FeedCollectionUiState) {
-        when (uiState) {
-            is FeedCollectionUiState.FirstPageLoading -> {
-                binding.run {
-                    progressBar.isVisible = true
-                    textError.isGone = true
-                }
-                feedCollectionItemAdapter.submitList(emptyList())
-            }
 
-            is FeedCollectionUiState.FirstPageError -> {
-                binding.run {
-                    progressBar.isGone = true
-                    textError.isVisible = true
-                    textError.text = "Đã xảy ra lỗi. Vui lòng thử lại."
+    fun render(feedCollectionUiState: FeedCollectionUiState?) {
+        when(feedCollectionUiState){
+                FeedCollectionUiState.FirstPageLoading -> {
+                    binding.progressBar.isVisible = true
+                    binding.textError.isGone= true
+                    feedCollectionItemAdapter.submitList(emptyList())
                 }
-                feedCollectionItemAdapter.submitList(emptyList())
-            }
-
-            is FeedCollectionUiState.Content -> {
-                binding.run {
-                    progressBar.isGone = true
-                    textError.isGone = true
+                is FeedCollectionUiState.Content -> {
+                    binding.progressBar.isGone = true
+                    binding.textError.isGone = true
+                    feedCollectionItemAdapter.submitList(feedCollectionUiState.item)
+                }
+                FeedCollectionUiState.FirstPageError -> {
+                    binding.progressBar.isGone = true
+                    binding.textError.isVisible = true
+                    binding.textError.text = "Đã có lỗi xảy ra,xin thử lại"
+                    feedCollectionItemAdapter.submitList(emptyList())
                 }
 
-                feedCollectionItemAdapter.submitList(uiState.item)
-            }
-            else -> error("error")
+             else -> error("error")
+
         }
     }
 
 
+    override fun onDestroy() {
+        super.onDestroy()
+        binding.recyclerView.adapter = null
+    }
+
     companion object{
         fun newInstance() = FeedCollectionFragment()
-        const val VISIBLE = 3
+        private const val VISIBLE_THRESHOLD = 3
     }
 
 }
+

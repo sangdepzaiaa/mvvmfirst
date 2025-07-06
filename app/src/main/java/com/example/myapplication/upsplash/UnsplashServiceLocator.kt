@@ -19,22 +19,22 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 import java.lang.reflect.Array.get
 
 object UnsplashServiceLocator  {
-   const val BASE_URL = "https://api.unsplash.com/"
+  const val BASE_URL = "https://api.unsplash.com/"
 
-   var unsplash : UnsplashApplication?=null
+    val unsplashApplication: UnsplashApplication?=null
 
-   @MainThread
-   fun initwith(app : UnsplashApplication){
-       unsplash = app
-   }
+    @MainThread
+    fun initwith(app: UnsplashApplication){
+        unsplashApplication == app
+    }
 
     @get:MainThread
-    val appli: UnsplashApplication
-        get() = checkNotNull(unsplash){
+    val application: UnsplashApplication
+        get() = checkNotNull(unsplashApplication){
             "OK"
         }
 
-    val moshi:Moshi by lazy {
+    val moshi: Moshi by lazy {
         Moshi.Builder()
             .addLast(KotlinJsonAdapterFactory())
             .build()
@@ -42,34 +42,35 @@ object UnsplashServiceLocator  {
 
     val httpLoggingInterceptor
         get() = HttpLoggingInterceptor().apply {
-            level = if (BuildConfig.DEBUG){
+            level= if(BuildConfig.DEBUG){
                 HttpLoggingInterceptor.Level.BODY
             }else{
                 HttpLoggingInterceptor.Level.NONE
             }
         }
 
-    val authorizationInterceptor:AuthorizationInterceptor
+    val authorizationInterceptor: AuthorizationInterceptor
         get() = AuthorizationInterceptor(clientId = BuildConfig.UNSPLASH_CLIENT_ID)
 
-    val okHttpClient:OkHttpClient by lazy {
+    val okHttpClient : OkHttpClient by lazy {
         OkHttpClient.Builder()
             .connectTimeout(30,java.util.concurrent.TimeUnit.SECONDS)
-            .writeTimeout(30,java.util.concurrent.TimeUnit.SECONDS)
             .readTimeout(30,java.util.concurrent.TimeUnit.SECONDS)
+            .writeTimeout(30,java.util.concurrent.TimeUnit.SECONDS)
             .addNetworkInterceptor(httpLoggingInterceptor)
             .addInterceptor(authorizationInterceptor)
             .build()
     }
 
-    val retrofit:Retrofit by lazy {
+    val retrofit: Retrofit by lazy {
         Retrofit.Builder()
             .baseUrl(BASE_URL)
             .addConverterFactory(MoshiConverterFactory.create(moshi))
             .client(okHttpClient)
             .build()
-
     }
 
     val unsplashApiService:UnsplashApiService by lazy { UnsplashApiService.invoke(retrofit) }
+
+
 }

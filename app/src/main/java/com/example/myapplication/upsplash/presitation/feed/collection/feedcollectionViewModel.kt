@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myapplication.upsplash.data.UnsplashApiService
 import com.example.myapplication.upsplash.data.response.CollectionsItemRp
+import com.example.myapplication.upsplash.data.response.CollectionsItemsRp
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
@@ -109,7 +110,7 @@ class feedcollectionViewModel(val apiService: UnsplashApiService) : ViewModel() 
         }
     }
 
-    fun CollectionsItemRp.toUIitem(): FeedCollectionUiState.CollectionsItem {
+    fun CollectionsItemsRp.toUIitem(): FeedCollectionUiState.CollectionsItem {
         return FeedCollectionUiState.CollectionsItem(
             id = id,
             title = title,

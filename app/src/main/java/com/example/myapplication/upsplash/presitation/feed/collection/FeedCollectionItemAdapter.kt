@@ -10,61 +10,74 @@ import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.example.myapplication.databinding.ItemCollectionLayoutBinding
+import com.example.myapplication.upsplash.domain.model.CollectionItem
 import kotlinx.coroutines.flow.combine
 
 
-//DiffUtil.ItemCallback(vẽ lại item cần thay đổi) thay cho datasetchange( vẽ lại toàn bộ rcv)
-object CollectionItemDiffUtilItemCallback: DiffUtil.ItemCallback<FeedCollectionUiState.CollectionsItem>() {
-    override fun areItemsTheSame(oldItem: FeedCollectionUiState.CollectionsItem, newItem: FeedCollectionUiState.CollectionsItem) =
+//DiffUtil.ItemCallback(vẽ lại item cần thay đổi) thay cho notifydatasetchange( vẽ lại toàn bộ rcv)
+
+object collectionsitemCallBack: DiffUtil.ItemCallback<FeedCollectionUiState.CollectionsItem>() {
+    override fun areItemsTheSame(
+        oldItem: FeedCollectionUiState.CollectionsItem,
+        newItem: FeedCollectionUiState.CollectionsItem
+    )=
         oldItem.id == newItem.id
 
-    override fun areContentsTheSame(oldItem: FeedCollectionUiState.CollectionsItem, newItem: FeedCollectionUiState.CollectionsItem) =
-       oldItem == newItem
+    override fun areContentsTheSame(
+        oldItem: FeedCollectionUiState.CollectionsItem,
+        newItem: FeedCollectionUiState.CollectionsItem
+    )=
+        oldItem == newItem
+
 }
 
 // ListAdapter thay cho Recycleview.Adapter vì ListAdapter hỗ trợ DiffUtil.ItemCallback
+
 class FeedCollectionItemAdapter(
-    private val onItemClick: (item : FeedCollectionUiState.CollectionsItem) -> Unit,
-    private val requestManager:  RequestManager)
-    : ListAdapter<FeedCollectionUiState.CollectionsItem, FeedCollectionItemAdapter.VH>(
-    CollectionItemDiffUtilItemCallback
-) {
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = VH(
-        ItemCollectionLayoutBinding.inflate(
-            LayoutInflater.from(parent.context),
-            parent,
-            false
-        )
-    )
+    val onClick: (item : FeedCollectionUiState.CollectionsItem) -> Unit,
+    val requestManager: RequestManager,
+): ListAdapter<FeedCollectionUiState.CollectionsItem, FeedCollectionItemAdapter.VH>(
+    collectionsitemCallBack
+){
+    override fun getItemCount(): Int {
+        return currentList.size
+    }
 
-//getItem : Hàm có sẵn của ListAdapter.
-    override fun onBindViewHolder(holder: VH, position: Int): Unit = holder.bind(getItem(position))
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
+        return VH(ItemCollectionLayoutBinding.inflate(LayoutInflater.from(parent.context),parent,false))
+    }
 
-   inner class VH(val binding: ItemCollectionLayoutBinding): ViewHolder(binding.root){
-       init {
-           itemView.setOnClickListener {
-               adapterPosition.let { pos ->
-                   if (pos != RecyclerView.NO_POSITION){
-                       onItemClick(getItem(pos))
-                   }
+    override fun onBindViewHolder(holder: VH, position: Int) = holder.bind(getItem(position))
 
-               }
-           }
-       }
-        fun bind(item: FeedCollectionUiState.CollectionsItem){
-            binding.run{
-                textTitle.text = item.title
-                textDescription.text = item.description
-
-                requestManager.load(item.photocover)
-                    .fitCenter()
-                    .centerCrop()
-                    .transition(DrawableTransitionOptions.withCrossFade())
-                    .into(imageView)
-
+   inner class VH(val binding: ItemCollectionLayoutBinding): RecyclerView.ViewHolder(binding.root) {
+        init {
+            itemView.setOnClickListener {
+                adapterPosition.let {pos ->
+                    if (pos != RecyclerView.NO_POSITION){
+                        onClick(getItem(pos))
+                    }
+                }
             }
+        }
+
+
+        fun bind(item : FeedCollectionUiState.CollectionsItem){
+            binding.textTitle.text = item.title
+            binding.textDescription.text = item.description
+
+            requestManager.load(item.photocover)
+                .centerCrop()
+                .fitCenter()
+                .transition(DrawableTransitionOptions.withCrossFade())
+                .into(binding.imageView)
         }
     }
 }
+
+
+
+
+//getItem : Hàm có sẵn của ListAdapter.
+
 
 
