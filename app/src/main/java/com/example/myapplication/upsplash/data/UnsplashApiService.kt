@@ -17,22 +17,22 @@ import retrofit2.http.Query
 
 interface UnsplashApiService {
 
-    @GET("search/photos")
-    suspend fun getSearch(
-        @Query("query") query: String,
-        @Query("page") page:Int,
-        @Query("per_page") perPage: Int,
-    ): SearchRp
+   @GET("search/photos")
+   suspend fun getSearchs(
+       @Query("query") query: String,
+       @Query("page") page: Int,
+       @Query("per_page") perPage: Int
+   ):SearchRp
 
-  @GET("collections")
-  suspend fun getCollections(
-      @Query("page") page: Int,
-      @Query("per_page") perPage: Int
-  ): List<CollectionsItemsRp>
+    @GET("collections")
+    suspend fun getCollections(
+        @Query("page") page: Int,
+        @Query("per_page") perPage: Int
+    ): List<CollectionsItemsRp>
 
-  companion object{
-      operator fun invoke(retrofit: Retrofit):UnsplashApiService = retrofit.create()
-  }
+    companion object{
+        operator fun invoke(retrofit: Retrofit):UnsplashApiService = retrofit.create()
+    }
 }
 
 

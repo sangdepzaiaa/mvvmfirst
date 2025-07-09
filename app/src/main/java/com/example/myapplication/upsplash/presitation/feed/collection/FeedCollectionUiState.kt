@@ -6,30 +6,28 @@ import com.squareup.moshi.Json
 sealed interface FeedCollectionUiState{
     data object FirstPageLoading : FeedCollectionUiState
     data object FirstPageError : FeedCollectionUiState
-
     data class Content(
         val item: List<CollectionsItem>,
         val currentPage: Int,
-        val nextPageState: NextPageState,
+        val nextPageState:NextPageState,
     ):FeedCollectionUiState
 
     data class CollectionsItem(
-        val id : String,
+        val id:String,
         val title:String,
         val description:String,
-        val photocover:String,
-    ) : FeedCollectionUiState
-
-
+        val photocover:String
+    ):FeedCollectionUiState
 
     enum class NextPageState {
-     LOADING,
+        LOADING,
+        ERROR,
         IDLE,
-        NO_MORE_ITEMS,
-        ERROR
+        NO_MORE_ITEMS
     }
-}
 
+
+}
 
 
 

@@ -20,7 +20,7 @@ class FeedPhotoFragment : BaseFragment1WithViewBinding<FragmentFeedPhotoBinding>
 
 
 companion object{
-    fun  newInstance() = FeedPhotoFragment()
+    fun newInstance() = FeedPhotoFragment()
 }
 
 }

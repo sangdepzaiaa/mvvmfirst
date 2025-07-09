@@ -16,19 +16,20 @@ import com.example.myapplication.upsplash.presitation.feed.collection.FeedCollec
 import com.example.myapplication.upsplash.presitation.feed.collection.FeedCollectionUiState
 import com.example.myapplication.upsplash.presitation.search.SearchViewModel
 
-
-class SearchPhotoFragment : BaseFragment1WithViewBinding<FragmentSearchPhotoBinding>(
+class SearchPhotoFragment :BaseFragment1WithViewBinding<FragmentSearchPhotoBinding>(
     inflateViewBinding = FragmentSearchPhotoBinding::inflate,
-){
+) {
     private val vm by activityViewModels<SearchViewModel>(
         factoryProducer = {
             viewModelFactory {
-                addInitializer(SearchViewModel::class){
+                addInitializer(SearchViewModel::class) {
                     SearchViewModel(unsplashApiService = UnsplashServiceLocator.unsplashApiService)
                 }
+
             }
         }
     )
+
 
     private val feedCollectionItemAdapter by lazy {
         FeedCollectionItemAdapter(
@@ -38,20 +39,15 @@ class SearchPhotoFragment : BaseFragment1WithViewBinding<FragmentSearchPhotoBind
     }
 
     private fun onClick(collectionsItem: FeedCollectionUiState.CollectionsItem) {
-      startActivity(Intent(requireContext(),DemoFragment::class.java))
+        startActivity(Intent(requireContext(), DemoFragment::class.java))
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupView()
-        bindViewdel()
+        bindviewmodel()
     }
 
-    private fun bindViewdel() {
-        vm.searchResultLivadata.observe(
-            viewLifecycleOwner,
-            feedCollectionItemAdapter::submitList)
-    }
 
     private fun setupView() {
         binding.recyclerview.run {
@@ -62,10 +58,16 @@ class SearchPhotoFragment : BaseFragment1WithViewBinding<FragmentSearchPhotoBind
         }
     }
 
-    companion object{
+    private fun bindviewmodel() {
+        vm.searchResult.observe(viewLifecycleOwner, feedCollectionItemAdapter::submitList)
+    }
+
+
+    companion object {
         fun newInstance() = SearchPhotoFragment()
     }
 }
+
 //Thành phần                   	Ý nghĩa	                                              Điều xảy ra khi chạy
 //vm.searchResultLivedata  	LiveData<List<FeedCollectionUiState.CollectionsItem>>     Mỗi khi ViewModel emit
 //                            – danh sách kết quả tìm kiếm do SearchViewModel phát.     list mới (sau khi người dùng tìm),

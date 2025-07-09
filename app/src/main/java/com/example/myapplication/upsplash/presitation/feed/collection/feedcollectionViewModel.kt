@@ -11,114 +11,104 @@ import com.example.myapplication.upsplash.data.response.CollectionsItemsRp
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
+class feedcollectionViewModel(val unsplashApiService: UnsplashApiService):ViewModel(){
 
-class feedcollectionViewModel(val apiService: UnsplashApiService) : ViewModel() {
-
-    companion object {
-        val LOG_TAG = feedcollectionViewModel::class.java.simpleName
+    companion object{
+        const val LOG_TAG = "TEN"
 
         const val PER_PAGE = 30
 
-        fun getNextPagestate(pageSize: Int): FeedCollectionUiState.NextPageState {
-            return if (pageSize < PER_PAGE) {
+        fun getNextPageState(pageSize: Int): FeedCollectionUiState.NextPageState{
+            return if (pageSize < PER_PAGE){
                 FeedCollectionUiState.NextPageState.NO_MORE_ITEMS
-            } else {
+            }else{
                 FeedCollectionUiState.NextPageState.IDLE
             }
         }
     }
-
-    val mutable = MutableLiveData<FeedCollectionUiState>(FeedCollectionUiState.FirstPageLoading)
-    val liveData: LiveData<FeedCollectionUiState> get() = mutable
+    private val mutableLiveData = MutableLiveData<FeedCollectionUiState>(FeedCollectionUiState.FirstPageLoading)
+    val liveData:LiveData<FeedCollectionUiState> get() = mutableLiveData
 
     init {
-        loadingfirstpage()
+        loadFirstPage()
     }
 
-    private fun loadingfirstpage() {
+    fun loadFirstPage(){
         viewModelScope.launch {
-            mutable.value = FeedCollectionUiState.FirstPageLoading
             try {
-                Log.d(LOG_TAG, "loadingfirstpage start")
-                val responseItem = apiService.getCollections(page = 1, perPage = PER_PAGE)
+                mutableLiveData.value = FeedCollectionUiState.FirstPageLoading
+                val respond = unsplashApiService.getCollections(1, PER_PAGE)
+                val collectiond = respond.map { it.toUIitems() }
 
-                val collectionItem = responseItem.map { it.toUIitem() }
-
-                mutable.value = FeedCollectionUiState.Content(
-                    item = collectionItem,
+                mutableLiveData.value = FeedCollectionUiState.Content(
+                    item = collectiond,
                     currentPage = 1,
-                    nextPageState = getNextPagestate(pageSize = collectionItem.size),
+                    nextPageState = getNextPageState(pageSize = collectiond.size)
                 )
-
-            } catch (e: CancellationException) {
+            }catch (e: CancellationException){
                 throw e
-            } catch (e: Exception) {
-                Log.e(LOG_TAG, "error", e)
-                mutable.value = FeedCollectionUiState.FirstPageError
+            }catch (e: Exception){
+                mutableLiveData.value = FeedCollectionUiState.FirstPageError
             }
-
         }
     }
 
-    fun loadnextpage() {
-        when (val currentState = mutable.value!!) {
+    fun loadNextPage(){
+        when(val currentState = mutableLiveData.value!!){
             FeedCollectionUiState.FirstPageLoading,
             FeedCollectionUiState.FirstPageError,
             -> return
 
-            is FeedCollectionUiState.Content -> {
-                when (currentState.nextPageState) {
-                    FeedCollectionUiState.NextPageState.NO_MORE_ITEMS -> return
+            is FeedCollectionUiState.Content ->
+                when(currentState.nextPageState){
                     FeedCollectionUiState.NextPageState.LOADING -> return
+                    FeedCollectionUiState.NextPageState.NO_MORE_ITEMS -> return
                     FeedCollectionUiState.NextPageState.ERROR -> return
                     FeedCollectionUiState.NextPageState.IDLE ->
-                        loadNextpageInternal(currentState)
+                        loadNextPageInternal(currentState)
                 }
-            }
-
             else -> error("error")
-        }
-    }
-
-
-    private fun loadNextpageInternal(currentState: FeedCollectionUiState.Content) {
-        viewModelScope.launch {
-            mutable.value = currentState.copy(
-                nextPageState = FeedCollectionUiState.NextPageState.LOADING,
-            )
-            val nextpage = currentState.currentPage + 1
-            try {
-                Log.d(LOG_TAG, "loadNextpage: start with page $nextpage")
-                val responseItem = apiService.getCollections(page = nextpage, perPage = PER_PAGE)
-                val newpageUIitem = responseItem.map { it.toUIitem() }
-
-                mutable.value = currentState.copy(
-                    item = (currentState.item + newpageUIitem).distinctBy { it.id },
-                    currentPage = nextpage,
-                    nextPageState = getNextPagestate(pageSize = newpageUIitem.size),
-                )
-
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                Log.e(LOG_TAG, "error", e)
-                mutable.value = currentState.copy(
-                    nextPageState = FeedCollectionUiState.NextPageState.ERROR,
-                )
-            }
 
         }
     }
 
-    fun CollectionsItemsRp.toUIitem(): FeedCollectionUiState.CollectionsItem {
+    private fun loadNextPageInternal(currentState: FeedCollectionUiState.Content) {
+         viewModelScope.launch {
+             try {
+                 mutableLiveData.value = currentState.copy(
+                     nextPageState = FeedCollectionUiState.NextPageState.LOADING
+                 )
+                 val nextPage = currentState.currentPage + 1
+                 val response = unsplashApiService.getCollections(nextPage, PER_PAGE)
+                 val collectionn = response.map { it.toUIitems() }
+
+                 mutableLiveData.value = currentState.copy(
+                     item = (currentState.item + collectionn).distinctBy { it.id },
+                     currentPage = nextPage,
+                     nextPageState = getNextPageState(pageSize = collectionn.size)
+                 )
+             }catch (e: CancellationException){
+                 throw e
+             }catch (e: Exception){
+                 mutableLiveData.value = currentState.copy(
+                     nextPageState = FeedCollectionUiState.NextPageState.ERROR
+                 )
+             }
+         }
+    }
+
+    fun CollectionsItemsRp.toUIitems() : FeedCollectionUiState.CollectionsItem{
         return FeedCollectionUiState.CollectionsItem(
             id = id,
             title = title,
-            description = description ?: "no des",
-            photocover = coverPhoto.urls.regular,
+            description = description?:"no des",
+            photocover = coverPhoto.urls.regular
         )
     }
+
+
 }
+
 
 //class feedcollectionViewModel(val apiService: UnsplashApiService) : ViewModel() {
 //

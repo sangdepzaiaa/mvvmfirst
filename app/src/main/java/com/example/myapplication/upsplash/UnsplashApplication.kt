@@ -2,7 +2,7 @@ package com.example.myapplication.upsplash
 
 import android.app.Application
 
-class UnsplashApplication: Application(){
+class UnsplashApplication : Application(){
     override fun onCreate() {
         super.onCreate()
         UnsplashServiceLocator.initwith(this)

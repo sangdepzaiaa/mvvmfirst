@@ -1,16 +1,22 @@
 package com.example.myapplication.upsplash.presitation.search
 
+import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.commit
 import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import com.bumptech.glide.Glide
 import com.example.myapplication.Fragments.BaseFragment1WithViewBinding
+import com.example.myapplication.Fragments.DemoFragment
 import com.example.myapplication.databinding.FragmentSearchhBinding
 import com.example.myapplication.upsplash.UnsplashServiceLocator
+import com.example.myapplication.upsplash.presitation.feed.collection.FeedCollectionItemAdapter
+import com.example.myapplication.upsplash.presitation.feed.collection.FeedCollectionUiState
 import com.example.myapplication.upsplash.presitation.search.photo.SearchPhotoFragment
 import com.example.myapplication.upsplash.presitation.search.user.SearchUserFragment
 import com.google.android.material.tabs.TabLayoutMediator
@@ -28,61 +34,68 @@ class SearchhFragment:BaseFragment1WithViewBinding<FragmentSearchhBinding>(
             }
         }
     )
+
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setupOnview()
-        setupViewpager()
+        setupView()
+        setViewpager()
     }
 
-    private fun setupViewpager() {
-        binding.run {
-            toolbar.setOnClickListener {
+
+    private fun setupView() {
+            binding.toolbar.setOnClickListener {
                 parentFragmentManager.popBackStack()
             }
 
-            searchEditText.addTextChangedListener(object : TextWatcher{
+            binding.searchEditText.addTextChangedListener(object : TextWatcher{
                 override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
 
                 }
 
                 override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+
                 }
 
                 override fun afterTextChanged(p0: Editable?) {
-                    vm.setQueryLivedata(p0.toString())
+                   vm.setQuery(p0.toString())
                 }
 
             })
-        }
     }
 
-    private fun setupOnview() {
+    fun setViewpager(){
         binding.viewpager.run {
-            adapter = viewpagerAdapter(this@SearchhFragment)
+            adapter = viewPagerAdapter(this@SearchhFragment)
 
             TabLayoutMediator(
                 binding.tablayout,
                 this
-            ){tab, position ->
-                tab.text = when(position){
-                    0 -> "photo"
-                    1 -> "user"
-                    else -> error("error $position" )
+            ){tab,posotion ->
+                tab.text = when(posotion){
+                    0 -> "Photos"
+                    1 -> "users"
+                    else -> error("error $posotion")
                 }
+
             }.attach()
         }
     }
 }
 
-class viewpagerAdapter(fragment: Fragment): FragmentStateAdapter(fragment) {
-    override fun getItemCount() = 2
+class viewPagerAdapter(fragment: Fragment):FragmentStateAdapter(fragment){
+    override fun getItemCount(): Int {
+        return 2
+    }
+
     override fun createFragment(position: Int): Fragment {
-        return  when(position){
+        return when(position){
             0 -> SearchPhotoFragment.newInstance()
             1 -> SearchUserFragment.instance()
             else -> error("error $position")
         }
     }
+
 }
 
 //activityViewModels :Nó giúp bạn dùng chung ViewModel giữa nhiều Fragment trong cùng 1 Activity.

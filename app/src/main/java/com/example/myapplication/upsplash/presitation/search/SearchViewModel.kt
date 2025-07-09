@@ -16,33 +16,26 @@ import kotlinx.coroutines.currentCoroutineContext
 import okhttp3.Dispatcher
 import retrofit2.http.Query
 
-class SearchViewModel (var unsplashApiService: UnsplashApiService):ViewModel(){
+class SearchViewModel(var unsplashApiService: UnsplashApiService):ViewModel(){
 
-    private val mutableLiveData = MutableLiveData<String>()
-    val searchLiveData: LiveData<String> get() = mutableLiveData
+    val mutableLiveData = MutableLiveData<String>()
+    val liveData:LiveData<String> get() = mutableLiveData
 
-    //    init {
-//        val data:LiveData<Int> = liveData{
-//            delay(3000)
-//            emit(3)
-//        }
-//    }
-
-    val searchResultLivadata:LiveData<List<FeedCollectionUiState.CollectionsItem>> = searchLiveData
+    val searchResult: LiveData<List<FeedCollectionUiState.CollectionsItem>>  = liveData
         .debounce(duration = 650L, coroutineScope = viewModelScope)
         .distinctUntilChanged()
-        .switchMap { query:String ->
-            liveData(context = viewModelScope.coroutineContext + Dispatchers.IO ){
+        .switchMap {query ->
+            liveData(context = viewModelScope.coroutineContext + Dispatchers.IO ) {
                 try {
-                    val result:List<FeedCollectionUiState.CollectionsItem> =
-                        unsplashApiService.getSearch(query,1,10)
-                            .resultss
-                            .map { coverPhoto ->
+                    val result: List<FeedCollectionUiState.CollectionsItem> =
+                        unsplashApiService.getSearchs(query,1,10)
+                            .result
+                            .map { cover ->
                                 FeedCollectionUiState.CollectionsItem(
-                                    id = coverPhoto.id,
-                                    title = coverPhoto.description.orEmpty(),
-                                    description = coverPhoto.user.name,
-                                    photocover = coverPhoto.urls.regular
+                                    id = cover.id,
+                                    title = cover.description.orEmpty(),
+                                    description = cover.user.name,
+                                    photocover = cover.urls.regular
                                 )
                             }
                     emit(result)
@@ -51,7 +44,8 @@ class SearchViewModel (var unsplashApiService: UnsplashApiService):ViewModel(){
                 }
             }
         }
-    fun setQueryLivedata(query: String){
+
+    fun setQuery(query: String){
         mutableLiveData.value = query
     }
 }

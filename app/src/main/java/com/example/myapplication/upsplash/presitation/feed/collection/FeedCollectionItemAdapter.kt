@@ -1,5 +1,7 @@
 package com.example.myapplication.upsplash.presitation.feed.collection
 
+import android.os.Parcel
+import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,18 +18,20 @@ import kotlinx.coroutines.flow.combine
 
 //DiffUtil.ItemCallback(vẽ lại item cần thay đổi) thay cho notifydatasetchange( vẽ lại toàn bộ rcv)
 
-object collectionsitemCallBack: DiffUtil.ItemCallback<FeedCollectionUiState.CollectionsItem>() {
+object CollectionCallback: DiffUtil.ItemCallback<FeedCollectionUiState.CollectionsItem>() {
     override fun areItemsTheSame(
         oldItem: FeedCollectionUiState.CollectionsItem,
         newItem: FeedCollectionUiState.CollectionsItem
-    )=
-        oldItem.id == newItem.id
+    ): Boolean {
+        return oldItem.id == newItem.id
+    }
 
     override fun areContentsTheSame(
         oldItem: FeedCollectionUiState.CollectionsItem,
         newItem: FeedCollectionUiState.CollectionsItem
-    )=
-        oldItem == newItem
+    ): Boolean {
+        return  oldItem == newItem
+    }
 
 }
 
@@ -35,43 +39,49 @@ object collectionsitemCallBack: DiffUtil.ItemCallback<FeedCollectionUiState.Coll
 
 class FeedCollectionItemAdapter(
     val onClick: (item : FeedCollectionUiState.CollectionsItem) -> Unit,
-    val requestManager: RequestManager,
+    val requestManager: RequestManager
 ): ListAdapter<FeedCollectionUiState.CollectionsItem, FeedCollectionItemAdapter.VH>(
-    collectionsitemCallBack
+    CollectionCallback
 ){
+
     override fun getItemCount(): Int {
         return currentList.size
     }
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
         return VH(ItemCollectionLayoutBinding.inflate(LayoutInflater.from(parent.context),parent,false))
     }
 
-    override fun onBindViewHolder(holder: VH, position: Int) = holder.bind(getItem(position))
-
-   inner class VH(val binding: ItemCollectionLayoutBinding): RecyclerView.ViewHolder(binding.root) {
-        init {
-            itemView.setOnClickListener {
-                adapterPosition.let {pos ->
-                    if (pos != RecyclerView.NO_POSITION){
-                        onClick(getItem(pos))
-                    }
-                }
-            }
-        }
-
-
-        fun bind(item : FeedCollectionUiState.CollectionsItem){
-            binding.textTitle.text = item.title
-            binding.textDescription.text = item.description
-
-            requestManager.load(item.photocover)
-                .centerCrop()
-                .fitCenter()
-                .transition(DrawableTransitionOptions.withCrossFade())
-                .into(binding.imageView)
-        }
+    override fun onBindViewHolder(holder: VH, position: Int) {
+        return holder.bind(getItem(position))
     }
+
+ inner class VH(var binding: ItemCollectionLayoutBinding): RecyclerView.ViewHolder(binding.root) {
+     init {
+         itemView.setOnClickListener {
+             adapterPosition.let {pos ->
+                 if (pos != RecyclerView.NO_POSITION){
+                     onClick(getItem(pos))
+                 }
+             }
+         }
+     }
+      fun bind(item: FeedCollectionUiState.CollectionsItem){
+          binding.run {
+              textTitle.text = item.title
+              textDescription.text = item.description
+          }
+
+          requestManager.load(item.photocover)
+              .centerCrop()
+              .fitCenter()
+              .transition(DrawableTransitionOptions.withCrossFade())
+              .into(binding.imageView)
+
+      }
+    }
+
+
+
 }
 
 

@@ -2,8 +2,8 @@ package com.example.myapplication.upsplash.data.response
 
 import com.squareup.moshi.Json
 
-class SearchRp (
+class SearchRp(
     @Json(name = "total") val total:Int,
-    @Json(name = "total_pages") val totalpages: Int,
-    @Json(name = "results") val resultss: List<CollectionsItemRp.CoverPhoto>,
+    @Json(name = "total_pages") val totalPage:Int,
+    @Json(name = "results") val result: List<CollectionsItemRp.CoverPhoto>
 )

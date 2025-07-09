@@ -18,10 +18,10 @@ import retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
 import java.lang.reflect.Array.get
 
-object UnsplashServiceLocator  {
-  const val BASE_URL = "https://api.unsplash.com/"
+object UnsplashServiceLocator{
+    const val BASE_URL = "https://api.unsplash.com/"
 
-    val unsplashApplication: UnsplashApplication?=null
+    val unsplashApplication : UnsplashApplication?=null
 
     @MainThread
     fun initwith(app: UnsplashApplication){
@@ -34,25 +34,23 @@ object UnsplashServiceLocator  {
             "OK"
         }
 
-    val moshi: Moshi by lazy {
-        Moshi.Builder()
-            .addLast(KotlinJsonAdapterFactory())
-            .build()
-    }
+    val moshi:Moshi = Moshi.Builder()
+        .addLast(KotlinJsonAdapterFactory())
+        .build()
 
     val httpLoggingInterceptor
         get() = HttpLoggingInterceptor().apply {
-            level= if(BuildConfig.DEBUG){
+            level = if (BuildConfig.DEBUG){
                 HttpLoggingInterceptor.Level.BODY
             }else{
                 HttpLoggingInterceptor.Level.NONE
             }
         }
 
-    val authorizationInterceptor: AuthorizationInterceptor
+    val authorizationInterceptor:AuthorizationInterceptor
         get() = AuthorizationInterceptor(clientId = BuildConfig.UNSPLASH_CLIENT_ID)
 
-    val okHttpClient : OkHttpClient by lazy {
+    val okHttpClient: OkHttpClient by lazy {
         OkHttpClient.Builder()
             .connectTimeout(30,java.util.concurrent.TimeUnit.SECONDS)
             .readTimeout(30,java.util.concurrent.TimeUnit.SECONDS)
@@ -62,15 +60,15 @@ object UnsplashServiceLocator  {
             .build()
     }
 
-    val retrofit: Retrofit by lazy {
+    val retrofit:Retrofit by lazy {
         Retrofit.Builder()
             .baseUrl(BASE_URL)
             .addConverterFactory(MoshiConverterFactory.create(moshi))
+            .addCallAdapterFactory(RxJava3CallAdapterFactory.create())
             .client(okHttpClient)
             .build()
     }
 
-    val unsplashApiService:UnsplashApiService by lazy { UnsplashApiService.invoke(retrofit) }
-
+    val unsplashApiService : UnsplashApiService by lazy { UnsplashApiService.invoke(retrofit) }
 
 }
